@@ -3,14 +3,29 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width" user-scalable="no">
-
-		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/main.min.css">
 		<title>Nick's Neighborhood Map App</title>
+
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU">
+    </script>
 
 	</head>
 
 	<body>
 
-		<script src=""></script>
+		<div id="sidebar">
+			<ul data-bind="foreach: markers">
+				<li data-bind="text: title"></li>
+			</ul>
+		</div>
+
+		<div id="mapContainer">
+			<div id="map-canvas"></div>
+		</div>
+
+
+		<script src="js/jquery.min.js"></script>
+		<script src="js/knockout.js"></script>
+		<script src="js/app.min.js"></script>
 	</body>
 </html>

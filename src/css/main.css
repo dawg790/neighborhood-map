@@ -1,15 +1,28 @@
 /* Main stylesheet for the Neighborhood Map App */
-* {
-	box-sizing: border-box;
+html,
+body,
+#map-canvas {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	width: 100%;
 }
 
-body {
-	margin: 0 auto;
+#mapContainer {
+	margin-left: 250px;
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	left: 0;
+	height: 100%;
+}
+
+#sidebar {
+	width: 250px;
 	background: #eee;
-}
-
-div {
-	font-size: 1.25em;
-	color: #1080dd;
-	font-family: Arial;
+	height: 100%;
+	position: fixed;
+	left: 0;
+	bottom: 0;
 }

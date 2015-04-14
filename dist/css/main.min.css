@@ -1,1 +1,1 @@
-*{box-sizing:border-box}body{margin:0 auto;background:#eee}div{font-size:1.25em;color:#1080dd;font-family:Arial}
+#mapContainer,#sidebar{height:100%;position:fixed}#map-canvas,body,html{margin:0;padding:0;height:100%;width:100%}#mapContainer{margin-left:250px;right:0;bottom:0;top:0;left:0}#sidebar{width:250px;background:#eee;left:0;bottom:0}

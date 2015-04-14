@@ -5,12 +5,24 @@ var gulp = require('gulp'),
   jshint = require('gulp-jshint'),
   jsmin = require('gulp-jsmin'),
   htmlmin = require('gulp-htmlmin');
-
+// Image optimization variables
 var imagemin = require('gulp-imagemin');
-var pngquant = require('gulp-imagemin/node_modules/imagemin/node_modules/imagemin-pngquant');
+// var imageminJpegtran = require('imagemin-jpegtran');
+// var imageminOptipng = require('imagemin-optipng');
+
+// paths to various files
+var paths = {
+	components: ["src/components/jquery/dist/jquery.min.js", "src/components/knockout/dist/knockout.js"]
+};
 
 gulp.task('default', function() {
   console.log("Good job Nick, you got Gulp installed and working in this directory.");
+});
+
+// Move Bower Components to dist folders
+gulp.task('bower-to-dist', function() {
+	return gulp.src(paths.components)
+	  .pipe(gulp.dest('dist/js'));
 });
 
 // task to minify my JS, and move from src/js to dist/js
@@ -40,15 +52,10 @@ gulp.task('content', function() {
 });
 
 // optimize images and move to dist/images
-gulp.task('images', function () {
-  return gulp.src('src/images/*')
-    .pipe(imagemin({
-        progressive: true,
-        svgoPlugins: [{removeViewBox: false}],
-        use: [pngquant()]
-    }))
-    .pipe(gulp.dest('dist/images'))
-    .pipe(notify({message: 'Image Optimization task complete!'}));
+gulp.task('images', function() {
+	return gulp.src('src/images/*')
+		.pipe(imagemin({optimizationLevel: 5, progressive: true}))
+		.pipe(gulp.dest('dist/images'));
 });
 
 gulp.task('watch', function() {
