@@ -1,1 +1,15 @@
 /* Main stylesheet for the Neighborhood Map App */
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0 auto;
+	background: #eee;
+}
+
+div {
+	font-size: 1.25em;
+	color: #1080dd;
+	font-family: Arial;
+}
