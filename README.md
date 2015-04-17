@@ -39,6 +39,8 @@ Similar to cat clicker project just without the map
 * List view, or some other way besides search is provided to browse the content
 
 Model that we build is only for the map markers that we put on the map
+  - Location included in model
+  - Data will be used to place the markers on the map.
 The map div and creating the map, don't try and 'put' that into knockout...
 Use Google code as is, use knockout.js for the markers
 

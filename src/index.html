@@ -6,25 +6,42 @@
 		<link rel="stylesheet" href="css/main.min.css">
 		<title>Nick's Neighborhood Map App</title>
 
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU">
-    </script>
-
 	</head>
 
 	<body>
 
-		<div id="sidebar">
-			<ul data-bind="foreach: markers">
-				<li data-bind="text: title"></li>
-			</ul>
+		<form id="search">
+			<input placeholder="Search places..." type="text" value="">
+			<button>GO</button>
+		</form>
+
+		<div id="places">
+			<h3>Featured Places<img id="down" src="images/places-down.png"></h3>
+			<div>
+				<ul class="markerList" data-bind="foreach: allPlaces">
+					<li data-bind="text: title, click: $parent.selectPlace"></li>
+				</ul>
+			</div>
 		</div>
 
-		<div id="mapContainer">
-			<div id="map-canvas"></div>
+		<div id="map-canvas"></div>
+
+		<div class="footer">
+			<p>&copy; 2015 Hood App</p>
 		</div>
 
+		<!--  TODO: just playing with ideas for hiding the Featured Places listing in Mobile view-->
+		<script>
+		var elt = document.getElementById('down');
+		elt.addEventListener('click', function() {
+			var elem = document.getElementById('places').style.bottom = "-40px";
+		  elt.style.transform = "rotate(180deg)";
+		});
+		</script>
 
 		<script src="js/jquery.min.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU">
+    </script>
 		<script src="js/knockout.js"></script>
 		<script src="js/app.min.js"></script>
 	</body>
