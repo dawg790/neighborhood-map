@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width" user-scalable="no">
 		<link rel="stylesheet" href="css/main.min.css">
+		<link href='http://fonts.googleapis.com/css?family=Raleway:400,600' rel='stylesheet' type='text/css'>
 		<title>Nick's Neighborhood Map App</title>
 
 	</head>
@@ -16,12 +17,22 @@
 		</form>
 
 		<div id="places">
-			<h3>Featured Places<img id="down" src="images/places-down.png"></h3>
+			<h2>Map Options<img id="down" src="images/downArrow.png" height="32" width="35"></h2>
+			<h3>Places</h3>
 			<div>
 				<ul class="markerList" data-bind="foreach: allPlaces">
 					<li data-bind="text: title, click: $parent.selectPlace"></li>
 				</ul>
 			</div>
+			<h3>Settings</h3>
+			<ul class="settingsList" data-bind="foreach: allSettings">
+				<li data-bind="text: type, click: $parent.settings">Satellite</li>
+			</ul>
+			<h3>Filter</h3>
+			<form>
+				<input type="text" value="" placeholder="Places filter...">
+				<button>GO</button>
+			</form>
 		</div>
 
 		<div id="map-canvas"></div>
@@ -31,18 +42,23 @@
 		</div>
 
 		<!--  TODO: just playing with ideas for hiding the Featured Places listing in Mobile view-->
-		<script>
-		var elt = document.getElementById('down');
-		elt.addEventListener('click', function() {
-			var elem = document.getElementById('places').style.bottom = "-40px";
-		  elt.style.transform = "rotate(180deg)";
-		});
-		</script>
 
 		<script src="js/jquery.min.js"></script>
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU">
     </script>
 		<script src="js/knockout.js"></script>
 		<script src="js/app.min.js"></script>
+
+		<script>
+		var elt = document.getElementById('down');
+		elt.style.transform = "rotate(180deg)";
+		$('#places').addClass('places-toggle');
+		elt.addEventListener('click', function() {
+			$('#places').toggleClass('places-toggle');
+		  elt.style.transform += "rotate(180deg)";
+		});
+
+
+		</script>
 	</body>
 </html>

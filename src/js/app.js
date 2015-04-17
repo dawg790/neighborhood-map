@@ -37,10 +37,22 @@ var places = [
     "infowindow": null
   }
 ];
+var allSettings = [
+  {
+  	"type": "Satellite"
+  },
+  {
+  	"type": "Terrain"
+  },
+  {
+  	"type": "Road"
+  }
+];
 
 // This is the proper model format for data,
 var Model = function(data) {
 
+	// AJAX request here???
 };
 
 var ViewModel = function() {
@@ -65,7 +77,31 @@ var ViewModel = function() {
 		clickedItem.marker.setAnimation(google.maps.Animation.BOUNCE);
 		// TODO: Set the other infowindows to close on click
 		clickedItem.infowindow.open(self.map, this.marker);
-	}
+		// This centers the map on the selected place
+		self.map.setCenter(new google.maps.LatLng(clickedItem.lat, clickedItem.long));
+	};
+
+	// Click event for Map settings options
+	self.settings = function(data) {
+		if (data.type === "Satellite") {
+			self.map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+		} else if (data.type === "Terrain") {
+			self.map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
+		} else if (data.type === "Road") {
+			self.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+		}
+	};
+
+	// AJAX Request to Foursquare
+	// TODO: Reset the app to pull all places from the this array instead of the object literal above
+	self.foursquarePlaces = ko.observableArray([]);
+
+	var city = "Breckenridge,CO";
+	$.getJSON("https://api.foursquare.com/v2/venues/search?client_id=MUKBUW43YPMWUS2HKDZQZW4VYLT5B1HHST20VR5K35WAKFVC&client_secret=5I1RMLBOLDC1QXU5IJN4VLC2E1N2G1JIGB3QUG5FTAZO4CFM&v=20130815&near=" + city, function(data) {
+    	for (var i = 0; i < data.response.venues.length; i++) {
+    		self.foursquarePlaces.push(data.response.venues[i]);
+    	};
+  });
 
 	self.initializeMap = function() {
 		// Using Google's Styled Map options. JSON below was built with Styled Map Wizard
@@ -83,7 +119,8 @@ var ViewModel = function() {
 	    mapTypeId: google.maps.MapTypeId.TERRAIN,
 	    streetViewControl: false,
 	    zoomControl: false,
-	    panControl: false
+	    panControl: false,
+	    mapTypeControl: false
 	  };
 
 		self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
