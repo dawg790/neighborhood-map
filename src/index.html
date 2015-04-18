@@ -20,8 +20,8 @@
 			<h2>Map Options<img id="down" src="images/downArrow.png" height="32" width="35"></h2>
 			<h3>Places</h3>
 			<div>
-				<ul class="markerList" data-bind="foreach: allPlaces">
-					<li data-bind="text: title, click: $parent.selectPlace"></li>
+				<ul class="markerList" data-bind="foreach: fsPlaces">
+					<li data-bind="text: name, click: $parent.selectPlace"></li>
 				</ul>
 			</div>
 			<h3>Settings</h3>
