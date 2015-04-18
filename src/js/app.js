@@ -70,7 +70,8 @@ var ViewModel = function() {
 		// clickedItem.infowindow.open(self.map, this.marker);
 		// This centers the map on the selected place
 		self.map.setCenter(new google.maps.LatLng(clickedItem.location.lat, clickedItem.location.lng));
-
+		self.map.setZoom(16);
+		console.log(clickedItem);
 	};
 
 	// Click event for Map settings options
@@ -87,16 +88,30 @@ var ViewModel = function() {
 	// Define ko array for our AJAX request
 	self.fsPlaces = ko.observableArray([]);
 
+	// Setting a variable to hold the user entered city
+	self.city = $('#city').val();
+
+	// function to re-center the map over the user entered city
+	self.setCity = function() {
+		self.city = $('#city').val();
+		$.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=" + self.city + "&key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU", function(data) {
+			var lat = data.results[0].geometry.location.lat;
+			var lng = data.results[0].geometry.location.lng;
+			self.map.setCenter({lat: lat, lng: lng});
+		});
+		// Have to run this again to add the markers in the new city
+		self.initializeMap();
+	};
+
 	self.initializeMap = function() {
 		// TODO: Hardcoding city should be removed and come from either input or settings
-		var city = "Breckenridge,CO";
-		$.getJSON("https://api.foursquare.com/v2/venues/search?client_id=MUKBUW43YPMWUS2HKDZQZW4VYLT5B1HHST20VR5K35WAKFVC&client_secret=5I1RMLBOLDC1QXU5IJN4VLC2E1N2G1JIGB3QUG5FTAZO4CFM&v=20130815&near=" + city, function(data) {
+		$.getJSON("https://api.foursquare.com/v2/venues/search?client_id=MUKBUW43YPMWUS2HKDZQZW4VYLT5B1HHST20VR5K35WAKFVC&client_secret=5I1RMLBOLDC1QXU5IJN4VLC2E1N2G1JIGB3QUG5FTAZO4CFM&v=20130815&near=" + self.city, function(data) {
 		  self.fsPlaces(data.response.venues);
 		  // This function within the request, allows us to use the data outside this scope.
 		  setMarkers();
 		});
 		// Function is called above and places the markers into the fsPlaces array.
-		function setMarkers() {
+		this.setMarkers = function() {
 			for (var i = 0; i < self.fsPlaces().length; i++) {
 				self.fsPlaces()[i].marker = new google.maps.Marker({
 				  position: new google.maps.LatLng(self.fsPlaces()[i].location.lat, self.fsPlaces()[i].location.lng),
@@ -107,6 +122,7 @@ var ViewModel = function() {
 			  });
 			}
 		}
+
 		// Using Google's Styled Map options. JSON below was built with Styled Map Wizard
 		var styles = [
 		  {"featureType":"water","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#1080dd"}]},
@@ -118,7 +134,7 @@ var ViewModel = function() {
 
 		var mapOptions = {
 	    center: { lat: 39.481, lng: -106.041},
-	    zoom: 13,
+	    zoom: 14,
 	    mapTypeId: google.maps.MapTypeId.TERRAIN,
 	    streetViewControl: false,
 	    zoomControl: false,

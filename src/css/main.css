@@ -141,12 +141,14 @@ input[type=text] {
   margin-left: 5px;
   margin-right: -10px;
   padding: 10px;
+  font-size: 1em;
+  color: #888;
 }
 
 /* Mobile view for phones up to iPhone 6. */
 @media screen and (max-width: 740px) {
 	#places {
-		width: 65%;
+		width: 100%;
 	}
 
 	#places div {

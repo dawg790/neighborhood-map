@@ -28,10 +28,10 @@
 			<ul class="settingsList" data-bind="foreach: allSettings">
 				<li data-bind="text: type, click: $parent.settings">Satellite</li>
 			</ul>
-			<h3>Filter</h3>
-			<form>
-				<input type="text" value="" placeholder="Places filter...">
-				<button>GO</button>
+			<h3>City, State</h3>
+			<form id="mapArea">
+				<input id="city" type="text" value="Breckenridge,CO" placeholder="City, state...">
+				<button data-bind="click: setCity">GO</button>
 			</form>
 		</div>
 
