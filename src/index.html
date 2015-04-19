@@ -18,7 +18,22 @@
 
 		<div id="places">
 			<h2>Map Options<img id="down" src="images/downArrow.png" height="32" width="35"></h2>
-			<h3>Places</h3>
+			<h3>Places
+				<form id="categories">
+				<!-- <select data-bind="options: categories, selectedOptions: chosenCategory"></select> -->
+					<select data-bind="event: { change: setCategory }" id="categoryChoices">
+						<option value="4d4b7105d754a06374d81259">All Food</option>
+						<option value="4bf58dd8d48988d1e0931735">Coffee Shops</option>
+						<option value="4bf58dd8d48988d1cb941735">Food Trucks</option>
+						<option value="50327c8591d4c4b30a586d5d">Breweries</option>
+						<option value="4bf58dd8d48988d181941735">Museums</option>
+						<option value="4d4b7105d754a06372d81259">Higher Education</option>
+						<option value="4d4b7105d754a06377d81259">Outdoors</option>
+						<option value="4bf58dd8d48988d184941735">Stadiums</option>
+						<option value="4bf58dd8d48988d17b941735">Zoo</option>
+					</select>
+				</form>
+			</h3>
 			<div>
 				<ul class="markerList" data-bind="foreach: fsPlaces">
 					<li data-bind="text: name, click: $parent.selectPlace"></li>
@@ -28,9 +43,9 @@
 			<ul class="settingsList" data-bind="foreach: allSettings">
 				<li data-bind="text: type, click: $parent.settings">Satellite</li>
 			</ul>
-			<h3>City, State</h3>
+			<h3>City</h3>
 			<form id="mapArea">
-				<input id="city" type="text" value="Breckenridge,CO" placeholder="City, state...">
+				<input id="city" type="text" value="Denver,CO" placeholder="City...">
 				<button data-bind="click: setCity">GO</button>
 			</form>
 		</div>

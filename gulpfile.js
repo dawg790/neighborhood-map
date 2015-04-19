@@ -3,7 +3,7 @@ var gulp = require('gulp'),
   rename = require('gulp-rename'),
   notify = require('gulp-notify'),
   jshint = require('gulp-jshint'),
-  jsmin = require('gulp-jsmin'),
+  uglify = require('gulp-uglify'),
   htmlmin = require('gulp-htmlmin');
 // Image optimization variables
 var imagemin = require('gulp-imagemin');
@@ -28,7 +28,7 @@ gulp.task('bower-to-dist', function() {
 // task to minify my JS, and move from src/js to dist/js
 gulp.task('scripts', function() {
   return gulp.src('src/js/*.js')
-    .pipe(jsmin())
+    .pipe(uglify())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('dist/js'))
     .pipe(notify({ message: 'Scripts task complete!' }));
@@ -63,3 +63,9 @@ gulp.task('watch', function() {
   gulp.watch('src/js/*.js', ['scripts']);
   gulp.watch('src/*.html', ['content']);
 });
+
+// Handle the error
+function errorHandler (error) {
+  console.log(error.toString());
+  this.emit('end');
+}
