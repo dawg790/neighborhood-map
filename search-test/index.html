@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Search Testing</title>
+</head>
+<body>
+
+	<input data-bind="event: { keyup: search }" type="text" id="searchInput" value="">
+
+	<div>
+		<ul id="placesList" data-bind="foreach: places">
+			<li data-bind="text: name"></li>
+		</ul>
+	</div>
+
+	<p id="result"></p>
+
+
+	<script src="../dist/js/jquery.min.js"></script>
+	<script src="../dist/js/knockout.js"></script>
+	<script>
+
+	var ViewModel = function() {
+		var self = this;
+		self.places = ko.observableArray([
+			{ "name": "Nick's" },
+			{ "name": "Wendy's" },
+			{ "name": "Sienna's" },
+			{ "name": "Ava's" },
+			{ "name": "Dad's" },
+			{ "name": "Butch's" }
+		]);
+
+		self.search = function() {
+			// Search term entered by the user
+			var searchTerm = $('#searchInput').val();
+			// Loop through the places names, and check each against the search term
+			$('#placesList > li').each(function() {
+				if ($(this).text().search(searchTerm) > -1) {
+					$(this).show();
+				} else {
+					$(this).hide();
+				}
+			});
+		};
+
+	};
+
+	ko.applyBindings( new ViewModel() );
+
+</script>
+
+</body>
+</html>

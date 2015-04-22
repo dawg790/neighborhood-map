@@ -1,117 +1,284 @@
+/* Neighborhood Map App
+ *
+ * Loads Google Map and Foursquare 'venues' from asynch AJAX requests
+ * Allows user to change city, select different categories of venues and see more info for each venue on click events
+ *
+ */
+var GOOGLE_KEY = "AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU";
+var CLIENT_ID = "MUKBUW43YPMWUS2HKDZQZW4VYLT5B1HHST20VR5K35WAKFVC";
+var CLIENT_SECRET = "5I1RMLBOLDC1QXU5IJN4VLC2E1N2G1JIGB3QUG5FTAZO4CFM";
 
-// Using this object for the user to be able to change the map type
-var allSettings = [
-  {
-  	"type": "Satellite"
-  },
-  {
-  	"type": "Terrain"
-  },
-  {
-  	"type": "Road"
+// Listing of categories from foursquare
+var fsCategories = [
+  { "name": "Restaurants",
+  	"id" : "4d4b7105d754a06374d81259"
+  },{
+  	"name": "Airport",
+  	"id": "4bf58dd8d48988d1ed931735"
+  },{
+  	"name": "Coffee Shops",
+  	"id": "4bf58dd8d48988d1e0931735"
+  },{
+  	"name": "Food Trucks",
+  	"id": "4bf58dd8d48988d1cb941735"
+  },{
+  	"name": "Breweries",
+  	"id": "50327c8591d4c4b30a586d5d"
+  },{
+  	"name": "Museums",
+  	"id": "4bf58dd8d48988d181941735"
+  },{
+  	"name": "Higher Education",
+  	"id": "4d4b7105d754a06372d81259"
+  },{
+  	"name": "Hotel",
+  	"id": "4bf58dd8d48988d1fa931735"
+  },{
+  	"name": "Outdoors",
+  	"id": "4d4b7105d754a06377d81259"
+  },{
+  	"name": "Stadiums",
+  	"id": "4bf58dd8d48988d184941735"
+  },{
+  	"name": "Shopping",
+  	"id": "4d4b7105d754a06378d81259"
+  },{
+  	"name": "Zoo",
+  	"id": "4bf58dd8d48988d17b941735"
   }
 ];
 
-// Main application ViewModel
-var ViewModel = function() {
+// Global var to hold the places request data returned from Foursquare
+var placesModel = [];
+
+// Main Neighborhood Map app ViewModel
+var MapViewModel = function() {
 	var self = this;
+
+	// Setting the map as a global MapViewModel variable to be used outside the initializeMap function
 	self.map = null;
 
-	// Click event for the list view
-	self.selectPlace = function(clickedItem) {
-		// Cycle through each marker, set animation to null so that with each click, the markers reset
-		for (var i = 0; i < self.fsPlaces().length; i++) {
-			self.fsPlaces()[i].marker.setAnimation(null)
-			self.fsPlaces()[i].infowindow.close(); // Close all open infowindows that are properties of fsPlaces
-			self.infowindow.close(); // Close the global var used in the marker click event
-		};
-		// Set the clicked marker to Bounce
-		clickedItem.marker.setAnimation(google.maps.Animation.BOUNCE);
-		// TODO: Set the other infowindows to close on click ******
-		clickedItem.infowindow.open(self.map, this.marker);
-		// This centers the map on the selected place
-		self.map.setCenter(new google.maps.LatLng(clickedItem.location.lat, clickedItem.location.lng));
-		self.map.setZoom(16);
-		console.log(clickedItem);
-	};
-
-	// Click event for Map settings options
-	self.settings = function(data) {
-		if (data.type === "Satellite") {
-			self.map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
-		} else if (data.type === "Terrain") {
-			self.map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
-		} else if (data.type === "Road") {
-			self.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
-		}
-	};
-
-	// Define ko array for our AJAX request
+	// Define ko array for our AJAX request - push the data from the Model into our ViewModel
 	self.fsPlaces = ko.observableArray([]);
 
 	// Holding our lat longs for the map - with default starting points in Denver
-	self.lat = ko.observable(39.738);
-	self.lng = ko.observable(-104.993);
+	self.lat = ko.observable(39.750);
+	self.lng = ko.observable(-104.999);
 
-	// CATEGORIES
-	// On page load set the Category to the current value
-	self.chosenCategory = ko.observable($('#categoryChoices').val());
+	// Search Places and filter list view and markers - runs on keyup
+	self.search = function() {
+		var value = $('#searchTerm').val();
+		// Found this replace function online to convert search term to Capital cased
+		value = value.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+        return letter.toUpperCase();
+    });
+    // Cycle through each <li> element and hide it or show it based on the search term
+		$('.markerList > li').each(function() {
+			if ($(this).text().search(value) > -1) {
+				$(this).show();
+			} else {
+				$(this).hide();
+			}
+		});
 
-	// Function is run when category is choosen from the list, value (or cat ID) is pulled from the option
+		// Cycle through the markers now and set the marker's visible property accordingly
+		for (var i = 0; i < self.fsPlaces().length; i++) {
+			if (self.fsPlaces()[i].marker.title.search(value) > -1) {
+				self.fsPlaces()[i].marker.setMap(self.map);
+			} else {
+				self.fsPlaces()[i].marker.setMap(null);
+			}
+		};
+	}
+
+	// The List View Click event
+	self.selectPlace = function(clickedItem) {
+		// Set all marker animations to null
+		self.clearMarkerAnimation();
+
+		// Close all open infowindows, set the content to clickedItem, then open it
+		self.infowindowToggle(clickedItem.marker.html, clickedItem.marker);
+
+		// Set the clicked marker to Bounce
+		clickedItem.marker.setAnimation(google.maps.Animation.BOUNCE);
+
+		// This centers the map on the selected place
+		self.map.setCenter(new google.maps.LatLng(clickedItem.location.lat, clickedItem.location.lng));
+		self.map.setZoom(17);
+		console.log(clickedItem);
+	};
+
+	// TODO: Places photos
+
+	// Map Settings - user defined within the app
+	self.mapType = ko.observable();
+
+	// Checking that we have the google object before instantiating new objects.
+	if (typeof google !== "undefined") var bikeLayer = new google.maps.BicyclingLayer();
+
+	// Click event for Map settings options
+	self.settings = function(data) {
+		if (!bikeLayer.setMap(null)) bikeLayer.setMap(self.map);
+		if (self.mapType()[0] === "Satellite") self.map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+		if (self.mapType()[0] === "Terrain") self.map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
+	  if (self.mapType()[0] === "Road") self.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+		if (self.mapType()[0] === "Bike") bikeLayer.setMap(self.map);
+		if (self.mapType()[0] === "Hybrid") self.map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+	};
+
+	/* Declaring a global var for the infowindow, so I can close all open windows when I click on a marker
+	 * Checking that we have the google object before instantiating new objects.
+	 */
+	if (typeof google !== "undefined") self.infowindow = new google.maps.InfoWindow();
+	// Function is called in our Marker Click and List Item Click events
+	self.infowindowToggle = function(content, marker) {
+		for (var i = 0; i < self.fsPlaces().length; i++) {
+		  self.infowindow.close();
+  	  self.infowindow.setContent(content);
+  	  self.infowindow.open(self.map, marker);
+		};
+	};
+
+	// Function to set all markers animation to none
+	self.clearMarkerAnimation = function() {
+		for (var i = 0; i < self.fsPlaces().length; i++) {
+  		self.fsPlaces()[i].marker.setAnimation(null);
+  	};
+	};
+
+	/* CATEGORIES
+   * Create an array of all the category id's, then join the items to make a comma separated string,
+   * then pass that string into the self.chosenCategoryID() to get passed to the JSON Request
+   */
+	var categoryIdArray = [];
+	for (var i = 0; i < fsCategories.length; i++) {
+		categoryIdArray.push(fsCategories[i].id);
+	};
+	var ids = categoryIdArray.join(",");
+
+	self.chosenCategoryID = ko.observable(ids);
+
+	// Store the selected choice in the drop down to display dynamically in the DOM - use starter value
+	self.catChoice = ko.observable();
+
+	/* Function is run when category is choosen from the list, we check the selected option
+	 * against the fsCategories object and update the id to use in our JSON request.
+	 */
 	self.setCategory = function() {
-		self.chosenCategory($('#categoryChoices').val());
+		for (var i = 0; i < fsCategories.length; i++) {
+			if (self.catChoice()[0] === fsCategories[i].name) {
+				self.chosenCategoryID(fsCategories[i].id);
+			}
+		};
+		// We run initialize again to reset the markers for the new category
 		self.initializeMap();
 	}
 
 	// USER ENTERED LOCATION
 	// Setting a variable to hold the user entered city
-	self.city = $('#city').val();
+	self.city = ko.observable($('#city').val());
+
 	// function to re-center the map over the user entered city
 	self.setCity = function() {
-		self.city = $('#city').val();
+		var cityValue = $('#city').val();
+
+		// This variable is used to display the user entered city in the Map Options headings.
+		// TODO: Could do some case formatting on the input value, so that the displayed city name is properly cased.
+		self.city(cityValue);
+
 		// Using Google's geocoding API to get the lat/long values for the city entered
-		$.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=" + self.city + "&key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU", function(data) {
-			// Request pulls in data, stores the lat longs for the city into the observables and sets the map center
+		$.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=" + self.city() + "&key=" + GOOGLE_KEY, function(data) {
+			// Request pulls in data, stores the lat longs for the city into the global observables and sets the map center
 			self.lat(data.results[0].geometry.location.lat);
 			self.lng(data.results[0].geometry.location.lng);
 			self.map.setCenter({lat: self.lat(), lng: self.lng()});
+		// Error handling below is if the Geocode service is down. Google seems to handle incorrect typing on city names pretty well.
+		}).error(function() {
+			$('#error').text("Google Geocode is not responding. Please try again later.").show();
+			console.log("Google Geocode API error");
 		});
+
 		// Have to run this again to add the markers in the new city
 		self.initializeMap();
+
+		// Clear out the text input field
+		$('#city').val("");
 	};
 
 	// MAP INITIALIZATION
 	self.initializeMap = function() {
-		// TODO: Category is set to 'Food', 'Museums' and 'Coffee Shops' with comma separated categoryId's
-		$.getJSON("https://api.foursquare.com/v2/venues/search?client_id=MUKBUW43YPMWUS2HKDZQZW4VYLT5B1HHST20VR5K35WAKFVC&client_secret=5I1RMLBOLDC1QXU5IJN4VLC2E1N2G1JIGB3QUG5FTAZO4CFM&v=20130815&categoryId=" + self.chosenCategory() + "&radius=7600&near=" + self.city, function(data) {
-		  self.fsPlaces(data.response.venues);
-		  // This function within the request, allows us to use the data outside this scope.
-		  setMarkers();
+		// Foursquare AJAX request for places
+		$.getJSON("https://api.foursquare.com/v2/venues/search?client_id=" + CLIENT_ID +
+			"&client_secret=" + CLIENT_SECRET +
+			"&v=20130815&limit=50&categoryId=" + self.chosenCategoryID() +
+			"&radius=6000&near=" + self.city(), function(data) {
+
+		  // Store our places request data in a global variable
+		  placesModel = data.response.venues;
+
+		  // Push our global variable results into our ViewModel observable
+		  self.fsPlaces(placesModel);
+	  	console.log("Foursquare successfully loaded places");
+
+	  	// This function within the request, allows us to use the data outside this scope.
+	  	setMarkers();
+	  	$('#error').hide();
+	  // Error handling for if the Foursquare service is unreachable or if the user types in an unrecognizable search term
+		}).error(function() {
+			$('#error').text("Foursquare can not retrieve places at this time. Please try again later or refine your search term.").show();
+			console.log("Foursquare API error");
 		});
-		// Function is called above and places the markers into the fsPlaces array.
+
+		// Function is called in the JSON request to Foursquare and places the markers into the fsPlaces array.
 		this.setMarkers = function() {
 			for (var i = 0; i < self.fsPlaces().length; i++) {
-				self.fsPlaces()[i].marker = new google.maps.Marker({
-				  position: new google.maps.LatLng(self.fsPlaces()[i].location.lat, self.fsPlaces()[i].location.lng),
-				  title: self.fsPlaces()[i].name,
+				// Storing some variables here for easier use later
+				var place = self.fsPlaces()[i];
+				var placePhone = place.contact.formattedPhone;
+				var placeAddress = place.location.address;
+				var placeCity = place.location.city;
+				var placeState = place.location.state;
+				var placeZip = place.location.postalCode;
+				var placeWeb = place.url;
+
+				// Format any undefined fields for the infowindow
+				if (placePhone === undefined) placePhone = "N/A";
+				if (placeAddress === undefined) placeAddress = "";
+				if (placeCity === undefined) placeCity = "";
+				if (placeState === undefined) placeState = "";
+				if (placeZip === undefined) placeZip = "";
+				if (placeWeb === undefined) placeWeb = "No Website";
+
+				// This is updating an old URI from Foursquare for icon images. I can't figure out how to get the proper URL from the request.
+				var fsIconRaw = place.categories[0].icon.prefix + "bg_32" + place.categories[0].icon.suffix;
+				var fsIcon = fsIconRaw.replace("https://ss3.4sqi.net", "https://foursquare.com");
+
+				place.marker = new google.maps.Marker({
+				  position: new google.maps.LatLng(place.location.lat, place.location.lng),
+				  title: place.name,
 				  map: self.map,
-				  animation: google.maps.Animation.DROP
+				  animation: google.maps.Animation.DROP,
+				  icon: fsIcon,
+				  html: '<div>' +
+			      '<h2 class="infoTitle">' + place.name +
+			      '</h2><h4 class="infoCategory">' + place.categories[0].name +
+			      '</h4><p class="infoPhone">Phone: ' + placePhone +
+			      '<p class="infoAddress">Address: ' + placeAddress + ' ' + placeCity + ', ' + placeState + ' ' + placeZip +
+			      '</p><p class="infoWeb"><a href="' + placeWeb + '">'+
+			      '' +  placeWeb + '</a> '+
+			      '</p></div>'
 			  });
 
-				// I need the infowindow as a property of the fsPlaces so that my list view click will show the window
-			  self.fsPlaces()[i].infowindow = new google.maps.InfoWindow({
-	  		  content: self.fsPlaces()[i].name
-			  });
-
-			  // Declaring a global var for the infowindow, so I can close all open windows when I click on a marker
-			  self.infowindow = new google.maps.InfoWindow();
 			  // Utilizing a closure here to add event listeners to each Marker
-			  google.maps.event.addListener(self.fsPlaces()[i].marker, 'click', (function(innerKey) {
+			  google.maps.event.addListener(place.marker, 'click', (function(innerKey) {
 	        return function() {
-	        	self.infowindow.close();
-	        	self.infowindow.setContent(self.fsPlaces()[innerKey].name);
-	        	self.infowindow.open(self.map, this);
-	        	// self.fsPlaces()[innerKey].infowindow.open(self.map, self.fsPlaces()[innerKey].marker);
+	        	// On marker click we first want to set all other markers animation to null
+	        	self.clearMarkerAnimation();
+
+	        	// Toggle the infowindow to display, center map on marker, set animation to bounce
+	        	self.infowindowToggle(self.fsPlaces()[innerKey].marker.html, this);
+	        	self.map.setCenter(new google.maps.LatLng(self.fsPlaces()[innerKey].location.lat, self.fsPlaces()[innerKey].location.lng));
+	        	self.fsPlaces()[innerKey].marker.setAnimation(google.maps.Animation.BOUNCE);
 	        }
 	      })(i));
 			}
@@ -122,78 +289,66 @@ var ViewModel = function() {
 		  {"featureType":"water","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#1080dd"}]},
 		  {"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#ffff5f"}]},
 		  {"featureType":"road.highway.controlled_access","elementType":"geometry.fill","stylers":[{"color":"#f09609"}]},
-		  {"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#515151"}]},
-		  {"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#ffff5f" }]}
+		  {"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#dddddd"}]},
+		  {"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#ffff5f" }]},
+		  {"featureType":"poi","elementType":"labels.icon","stylers":[{"visibility":"off"}]}
 		];
 
 		var mapOptions = {
-			// TODO: center object should not be hardcoded - it must pull from a variable that updates
 	    center: { lat: self.lat(), lng: self.lng()},
-	    zoom: 13,
-	    mapTypeId: google.maps.MapTypeId.TERRAIN,
+	    zoom: 15,
+	    mapTypeId: google.maps.MapTypeId.ROADMAP,
 	    streetViewControl: false,
-	    zoomControl: false,
+	    zoomControl: true,
 	    panControl: false,
 	    mapTypeControl: false
 	  };
 
 		self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
-		// Adding the Bicycling layer
-	  var bikeLayer = new google.maps.BicyclingLayer();
-		bikeLayer.setMap(self.map);
+		// Adding the Bicycling layer - but setting it to null, so that users can add it from the Map Settings options
+		bikeLayer.setMap(null);
 
 		// Calling setOptions on the map and setting it to the styles array from above
 		self.map.setOptions({styles: styles});
 	};
 
-	if (typeof google === 'object') {
-		google.maps.event.addDomListener(window, 'load', this.initializeMap);
+	/* ERROR HANDLING for Google Maps
+   * First we will deal with initially reaching 3rd party data sites upon launching the app
+	 * Check for the google object
+	 */
+	if (typeof google === "undefined") {
+		var errorStr = "Resource API (Google Maps) did not load. Please try again later.";
+		$('#error').text(errorStr).show();
+		console.log("Failed to load Google Maps");
 	} else {
-		var errorStr = "Resource Google API did not load. Try again later.";
-		document.body.innerHTML = errorStr;
+		$('#error').hide();
+		google.maps.event.addDomListener(window, 'load', this.initializeMap);
+		console.log("Google Maps successfully loaded");
 	}
-
 };
 
-ko.applyBindings( new ViewModel() );
+ko.applyBindings( new MapViewModel() );
 
 
-// var places = [
-//   {
-//   	"content": "Ski area",
-//     "lat": 39.480742,
-//     "long": -106.066891,
-//     "title": "Breckenridge Ski Resort",
-//     "animation": null,
-//     "marker": null,
-//     "infowindow": null
-//   },
-//   {
-//   	"content": "Ski area resort and lodge",
-//   	"lat": 39.484333,
-//   	"long": -106.049904,
-//     "title": "Mountain Thunder Lodge",
-//     "animation": null,
-//     "marker": null,
-//     "infowindow": null
-//   },
-//   {
-//   	"content": "Snowmobile adventures",
-//   	"lat": 39.508813,
-//   	"long": -105.945805,
-//     "title": "Good Times Adventure",
-//     "animation": null,
-//     "marker": null,
-//     "infowindow": null
-//   },
-//   {
-//   	"content": "Local brews and burgers",
-//   	"lat": 39.476205,
-//   	"long": -106.043884,
-//     "title": "Breckenridge Brewery and Pub",
-//     "animation": null,
-//     "marker": null,
-//     "infowindow": null
-//   }
-// ];
+
+/* Some test code to potentially be used for adding photos for each place. Link would be added to the infowindow.
+ * user would click the link to open a DOM element containing foursquare loaded photos for that place.
+ */
+// var placeId;
+// function runPics() {
+// 	console.log(placeId);
+// 	$.getJSON("https://api.foursquare.com/v2/venues/" + placeId + "/photos?client_id=MUKBUW43YPMWUS2HKDZQZW4VYLT5B1HHST20VR5K35WAKFVC&client_secret=5I1RMLBOLDC1QXU5IJN4VLC2E1N2G1JIGB3QUG5FTAZO4CFM&v=20150421", function(data) {
+// 		for (var i = 0; i < data.response.photos.items.length; i++) {
+// 			var img = data.response.photos.items[i];
+// 			var ref = img.prefix + "100x100" + img.suffix;
+// 			var imgElt = document.createElement('img');
+// 			var imgATag = document.createElement('a');
+// 			imgATag.setAttribute('href', img.prefix + "300x300" + img.suffix);
+// 			imgATag.setAttribute('target', "_blank");
+// 			imgElt.setAttribute('src', ref);
+// 			imgATag.appendChild(imgElt);
+// 			$('.foursquarePics').append(imgATag).show();
+// 		};
+// 	});
+// }

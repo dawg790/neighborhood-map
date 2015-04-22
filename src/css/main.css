@@ -4,11 +4,11 @@
 html,
 body,
 #map-canvas {
+	font-family: 'Raleway', sans-serif;
 	height: 100%;
 	margin: 0;
 	padding: 0;
 	width: 100%;
-	font-family: 'Raleway', sans-serif;
 }
 
 .footer {
@@ -23,29 +23,29 @@ body,
 }
 
 #search {
-	left: 0;
+	left: 25px;
 	position: absolute;
 	top: 5px;
 	z-index: 1;
 }
 
 #places {
-	position: absolute;
-	border: 1px solid #fff;
-	z-index: 1;
-	right: 0;
-	max-height: 90%;
-	bottom: 19px;
-	width: 25%;
 	background: #fff;
+	border: 1px solid #fff;
+	bottom: 19px;
+	max-height: 98%;
 	padding: 0;
+	position: fixed;
+	right: 0;
+	width: 25%;
+	z-index: 1;
 }
 
 #places div {
-	position: relative;
-	overflow: auto;
-	width: 100%;
 	height: 500px;
+	overflow: auto;
+	position: relative;
+	width: 100%;
 }
 
 .places-toggle {
@@ -53,21 +53,52 @@ body,
 	overflow: hidden;
 }
 
+.foursquarePics {
+	display: none;
+	height: 500px;
+	left: 50%;
+	margin-left: -250px;
+	overflow: auto;
+	position: absolute;
+	top: 100px;
+	width: 500px;
+}
+
+#error {
+	/* Good trick for centering an absolutely pos element - use fixed width, and minus the margin half the width */
+	background: #262626;
+	border: 1px solid #888;
+	color: #ffff90;
+	display: none;
+	left: 50%;
+	margin-left: -75px;
+	padding: 5px;
+	position: absolute;
+	text-align: center;
+	top: 125px;
+	width: 150px;
+}
+
 /* Text */
 h2 {
-	padding: 3px;
-	margin: 0;
-	text-transform: uppercase;
-	background: #1080dd;
+	background: linear-gradient(to right, #003366, #1080dd);
 	color: #fff;
-}
-h3 {
-	padding: 3px;
 	margin: 0;
-	color: #1080dd;
+	padding: 3px;
+	text-transform: uppercase;
+}
+
+h2:hover {
+	cursor: pointer;
+}
+
+h3 {
 	background: #eee;
-	font-weight: 600;
 	border-bottom: 1px solid #888;
+	color: #1080dd;
+	font-weight: 600;
+	margin: 0;
+	padding: 3px;
 }
 
 .footer p {
@@ -81,29 +112,33 @@ h3 {
 .markerList,
 .settingsList {
 	list-style-type: none;
-	padding-left: 5px;
+	margin-bottom: 3px;
 	margin-top: 3px;
+	padding-left: 0;
 }
 
 .markerList li {
-	padding: 5px;
-	margin-top: 2px;
 	color: #222;
+	margin-top: 2px;
+	padding: 5px;
 }
+
 .settingsList li {
+	border-right: 2px solid #fff;
 	display: inline-block;
 	padding: 0 5px;
-	border-right: 2px solid #ddd;
 }
+
 .settingsList li:last-child {
 	border-right: none;
 }
 
 .markerList li:hover,
 .settingsList li:hover {
-	background: #A2C139;
+	background: linear-gradient(to right, #008040, #A2C139);
 	color: #fff;
 	cursor: pointer;
+	font-weight: bold;
 }
 
 /* Images */
@@ -120,10 +155,13 @@ h2 img:hover {
 }
 
 /* Form Elements */
-#categories {
+#categoryChoices,
+#mapArea,
+#mapSettings {
 	float: right;
 }
-button {
+
+label {
 	background: #124191;
 	border-radius: 5px;
 	border: none;
@@ -132,20 +170,60 @@ button {
 	outline: none;
 	padding: 10px;
 }
-button:hover {
-	background: #1080dd;
-  cursor: pointer;
+
+#mapArea {
+	margin-top: -2px;
 }
 
-input[type=text] {
+#mapArea input[type=text] {
+	width: 125px;
+}
+
+#search input[type=text] {
 	border-radius: 5px;
 	border: 2px solid #ddd;
 	outline: none;
+  color: #888;
+  font-size: 1em;
   margin-left: 5px;
   margin-right: -10px;
   padding: 10px;
-  font-size: 1em;
-  color: #888;
+}
+
+/* Google Maps InfoWindows styling */
+.infoTitle,
+.infoCategory,
+.infoPhone,
+.infoAddress,
+.infoWeb {
+	font-family: "Raleway";
+}
+
+.infoTitle {
+	background: linear-gradient(to right, #008040, #A2C139);
+	color: #fff;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+.infoCategory {
+	margin: 2px 0;
+
+}
+
+.infoPhone {
+	margin: 0;
+}
+
+.infoAddress {
+	margin: 0;
+}
+
+.infoWeb {
+
+}
+.infoWeb a:hover {
+	color: #888;
 }
 
 /* Mobile view for phones up to iPhone 6. */
@@ -158,23 +236,19 @@ input[type=text] {
 		height: 75px;
 	}
 
-	.markerList,
-	.settingsList {
-		padding-left: 0;
-	}
 	.markerList li,
 	.settingsList li {
 		font-size: .8em;
 		padding: 2px;
 	}
 
-	button {
+	label {
 		border-radius: 5px;
-		padding: 5px;
+		padding: 2px;
 	}
 
-	input[type=text] {
+	#search input[type=text] {
 		border-radius: 5px;
-	  padding: 5px;
+	  padding: 2px;
 	}
 }

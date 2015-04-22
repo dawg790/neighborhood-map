@@ -1,7 +1,274 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width" user-scalable="no"><link rel="stylesheet" href="css/main.min.css"><link href="http://fonts.googleapis.com/css?family=Raleway:400,600" rel="stylesheet" type="text/css"><title>Nick's Neighborhood Map App</title></head><body><form id="search"><input placeholder="Search places..." type="text" value=""> <button>GO</button></form><div id="places"><h2>Map Options<img id="down" src="images/downArrow.png" height="32" width="35"></h2><h3>Places<form id="categories"><!-- <select data-bind="options: categories, selectedOptions: chosenCategory"></select> --><select data-bind="event: { change: setCategory }" id="categoryChoices"><option value="4d4b7105d754a06374d81259">All Food</option><option value="4bf58dd8d48988d1e0931735">Coffee Shops</option><option value="4bf58dd8d48988d1cb941735">Food Trucks</option><option value="50327c8591d4c4b30a586d5d">Breweries</option><option value="4bf58dd8d48988d181941735">Museums</option><option value="4d4b7105d754a06372d81259">Higher Education</option><option value="4d4b7105d754a06377d81259">Outdoors</option><option value="4bf58dd8d48988d184941735">Stadiums</option><option value="4bf58dd8d48988d17b941735">Zoo</option></select></form></h3><div><ul class="markerList" data-bind="foreach: fsPlaces"><li data-bind="text: name, click: $parent.selectPlace"></li></ul></div><h3>Settings</h3><ul class="settingsList" data-bind="foreach: allSettings"><li data-bind="text: type, click: $parent.settings">Satellite</li></ul><h3>City</h3><form id="mapArea"><input id="city" type="text" value="Denver,CO" placeholder="City..."> <button data-bind="click: setCity">GO</button></form></div><div id="map-canvas"></div><div class="footer"><p>&copy; 2015 Hood App</p></div><!--  TODO: just playing with ideas for hiding the Featured Places listing in Mobile view--><script src="js/jquery.min.js"></script><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU"></script><script src="js/knockout.js"></script><script src="js/app.min.js"></script><script>var elt = document.getElementById('down');
-		elt.style.transform = "rotate(180deg)";
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width" user-scalable="no"><title>Nick's Neighborhood Map App</title><style>@font-face {
+			  font-family: 'Raleway';
+			  font-style: normal;
+			  font-weight: 400;
+			  src: local('Raleway'), url(http://fonts.gstatic.com/s/raleway/v9/0dTEPzkLWceF7z0koJaX1A.woff2) format('woff2'), url(http://fonts.gstatic.com/s/raleway/v9/IczWvq5y_Cwwv_rBjOtT0w.woff) format('woff');
+			}
+
+			@font-face {
+			  font-family: 'Raleway';
+			  font-style: normal;
+			  font-weight: 600;
+			  src: local('Raleway SemiBold'), local('Raleway-SemiBold'), url(http://fonts.gstatic.com/s/raleway/v9/xkvoNo9fC8O2RDydKj12b_k_vArhqVIZ0nv9q090hN8.woff2) format('woff2'), url(http://fonts.gstatic.com/s/raleway/v9/xkvoNo9fC8O2RDydKj12bxsxEYwM7FgeyaSgU71cLG0.woff) format('woff');
+			}
+
+			html,
+			body,
+			#map-canvas {
+				font-family: 'Raleway', sans-serif;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				width: 100%;
+			}
+
+			.footer {
+				background: #00aba9;
+				bottom: 0;
+				left: 0;
+				position: absolute;
+				right: 0;
+				text-align: left;
+				width: 100%;
+				z-index: 1;
+			}
+
+			#search {
+				left: 25px;
+				position: absolute;
+				top: 5px;
+				z-index: 1;
+			}
+
+			#places {
+				background: #fff;
+				border: 1px solid #fff;
+				bottom: 19px;
+				max-height: 98%;
+				padding: 0;
+				position: fixed;
+				right: 0;
+				width: 25%;
+				z-index: 1;
+			}
+
+			#places div {
+				height: 500px;
+				overflow: auto;
+				position: relative;
+				width: 100%;
+			}
+
+			.places-toggle {
+				height: 35px;
+				overflow: hidden;
+			}
+
+			.foursquarePics {
+				display: none;
+				height: 500px;
+				left: 50%;
+				margin-left: -250px;
+				overflow: auto;
+				position: absolute;
+				top: 100px;
+				width: 500px;
+			}
+
+			#error {
+				/* Good trick for centering an absolutely pos element - use fixed width, and minus the margin half the width */
+				background: #262626;
+				border: 1px solid #888;
+				color: #ffff90;
+				display: none;
+				left: 50%;
+				margin-left: -75px;
+				padding: 5px;
+				position: absolute;
+				text-align: center;
+				top: 125px;
+				width: 150px;
+			}
+
+			/* Text */
+			h2 {
+				background: linear-gradient(to right, #003366, #1080dd);
+				color: #fff;
+				margin: 0;
+				padding: 3px;
+				text-transform: uppercase;
+			}
+
+			h2:hover {
+				cursor: pointer;
+			}
+
+			h3 {
+				background: #eee;
+				border-bottom: 1px solid #888;
+				color: #1080dd;
+				font-weight: 600;
+				margin: 0;
+				padding: 3px;
+			}
+
+			.footer p {
+				color: #e9e9e9;
+				font-size: .8em;
+				margin: 0;
+				padding: 2px;
+			}
+
+			/* Lists */
+			.markerList,
+			.settingsList {
+				list-style-type: none;
+				margin-bottom: 3px;
+				margin-top: 3px;
+				padding-left: 0;
+			}
+
+			.markerList li {
+				color: #222;
+				margin-top: 2px;
+				padding: 5px;
+			}
+
+			.settingsList li {
+				border-right: 2px solid #fff;
+				display: inline-block;
+				padding: 0 5px;
+			}
+
+			.settingsList li:last-child {
+				border-right: none;
+			}
+
+			.markerList li:hover,
+			.settingsList li:hover {
+				background: linear-gradient(to right, #008040, #A2C139);
+				color: #fff;
+				cursor: pointer;
+				font-weight: bold;
+			}
+
+			/* Images */
+			h2 img {
+				margin: 0;
+				padding: 0;
+				position: absolute;
+				right: 5px;
+			}
+
+			h2 img:hover {
+				cursor: pointer;
+				opacity: .8;
+			}
+
+			/* Form Elements */
+			#categoryChoices,
+			#mapArea,
+			#mapSettings {
+				float: right;
+			}
+
+			label {
+				background: #124191;
+				border-radius: 5px;
+				border: none;
+				color: #fff;
+				margin-left: 10px;
+				outline: none;
+				padding: 10px;
+			}
+
+			#mapArea {
+				margin-top: -2px;
+			}
+
+			#mapArea input[type=text] {
+				width: 125px;
+			}
+
+			#search input[type=text] {
+				border-radius: 5px;
+				border: 2px solid #ddd;
+				outline: none;
+			  color: #888;
+			  font-size: 1em;
+			  margin-left: 5px;
+			  margin-right: -10px;
+			  padding: 10px;
+			}
+
+			/* Google Maps InfoWindows styling */
+			.infoTitle,
+			.infoCategory,
+			.infoPhone,
+			.infoAddress,
+			.infoWeb {
+				font-family: "Raleway";
+			}
+
+			.infoTitle {
+				background: linear-gradient(to right, #008040, #A2C139);
+				color: #fff;
+				font-weight: bold;
+				margin-bottom: 5px;
+			}
+
+			.infoCategory {
+				margin: 2px 0;
+
+			}
+
+			.infoPhone {
+				margin: 0;
+			}
+
+			.infoAddress {
+				margin: 0;
+			}
+
+			.infoWeb {
+
+			}
+			.infoWeb a:hover {
+				color: #888;
+			}
+
+			/* Mobile view for phones up to iPhone 6. */
+			@media screen and (max-width: 740px) {
+				#places {
+					width: 100%;
+				}
+
+				#places div {
+					height: 75px;
+				}
+
+				.markerList li,
+				.settingsList li {
+					font-size: .8em;
+					padding: 2px;
+				}
+
+				label {
+					border-radius: 5px;
+					padding: 2px;
+				}
+
+				#search input[type=text] {
+					border-radius: 5px;
+				  padding: 2px;
+				}
+			}</style></head><body><div id="search"><label for="searchTerm">SEARCH:</label><input data-bind="event: { keyup: search }" id="searchTerm" placeholder="Filter places..." type="text" value=""></div><div id="places"><h2 id="optionsToggle">Map Options<img id="down" src="images/downArrow.png" height="32" width="35"></h2><h3>Base Map<select id="mapSettings" data-bind="selectedOptions: mapType, event: { change: settings }"><option value="Satellite">Satellite</option><option value="Terrain">Terrain</option><option value="Road">Road</option><option value="Hybrid">Hybrid</option><option value="Bike">Bicycling</option></select></h3><h3>City: <span data-bind="text: city"></span><form data-bind="submit: setCity" id="mapArea"><input id="city" type="text" value="Denver, CO" placeholder="City..."></form></h3><h3>Places: <span data-bind="text: catChoice"></span><select data-bind="foreach: fsCategories, selectedOptions: catChoice, event: { change: setCategory }" id="categoryChoices"><option data-bind="text: name"></option></select></h3><div><ul class="markerList" data-bind="foreach: fsPlaces"><li data-bind="text: name, click: $parent.selectPlace"></li></ul></div></div><div id="map-canvas"></div><div id="error"></div><div class="footer"><p>&copy; 2015 Hood App</p></div><script src="js/jquery.min.js"></script><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU"></script><script src="js/knockout.js"></script><script src="js/app.min.js"></script><script>// Script for toggling the Map Options section
+		var elt = document.getElementById('optionsToggle');
+		var eltImg = document.getElementById('down');
+		eltImg.style.transform = "rotate(180deg)";
 		$('#places').addClass('places-toggle');
+
 		elt.addEventListener('click', function() {
 			$('#places').toggleClass('places-toggle');
-		  elt.style.transform += "rotate(180deg)";
+		  eltImg.style.transform += "rotate(180deg)";
 		});</script></body></html>
