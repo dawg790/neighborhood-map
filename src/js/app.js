@@ -11,40 +11,40 @@ var CLIENT_SECRET = "5I1RMLBOLDC1QXU5IJN4VLC2E1N2G1JIGB3QUG5FTAZO4CFM";
 // Listing of categories from foursquare
 var fsCategories = [
   { "name": "Restaurants",
-  	"id" : "4d4b7105d754a06374d81259"
+    "id" : "4d4b7105d754a06374d81259"
   },{
-  	"name": "Airport",
-  	"id": "4bf58dd8d48988d1ed931735"
+    "name": "Airport",
+    "id": "4bf58dd8d48988d1ed931735"
   },{
-  	"name": "Coffee",
-  	"id": "4bf58dd8d48988d1e0931735"
+    "name": "Coffee",
+    "id": "4bf58dd8d48988d1e0931735"
   },{
-  	"name": "Food Trucks",
-  	"id": "4bf58dd8d48988d1cb941735"
+    "name": "Food Trucks",
+    "id": "4bf58dd8d48988d1cb941735"
   },{
-  	"name": "Breweries",
-  	"id": "50327c8591d4c4b30a586d5d"
+    "name": "Breweries",
+    "id": "50327c8591d4c4b30a586d5d"
   },{
-  	"name": "Museums",
-  	"id": "4bf58dd8d48988d181941735"
+    "name": "Museums",
+    "id": "4bf58dd8d48988d181941735"
   },{
-  	"name": "Universities",
-  	"id": "4d4b7105d754a06372d81259"
+    "name": "Universities",
+    "id": "4d4b7105d754a06372d81259"
   },{
-  	"name": "Hotel",
-  	"id": "4bf58dd8d48988d1fa931735"
+    "name": "Hotel",
+    "id": "4bf58dd8d48988d1fa931735"
   },{
-  	"name": "Outdoors",
-  	"id": "4d4b7105d754a06377d81259"
+    "name": "Outdoors",
+    "id": "4d4b7105d754a06377d81259"
   },{
-  	"name": "Stadiums",
-  	"id": "4bf58dd8d48988d184941735"
+    "name": "Stadiums",
+    "id": "4bf58dd8d48988d184941735"
   },{
-  	"name": "Shopping",
-  	"id": "4d4b7105d754a06378d81259"
+    "name": "Shopping",
+    "id": "4d4b7105d754a06378d81259"
   },{
-  	"name": "Zoo",
-  	"id": "4bf58dd8d48988d17b941735"
+    "name": "Zoo",
+    "id": "4bf58dd8d48988d17b941735"
   }
 ];
 
@@ -70,9 +70,9 @@ var MapViewModel = function() {
 		var value = $('#searchTerm').val();
 		// Found this replace function online to convert search term to Capital cased
 		value = value.toLowerCase().replace(/\b[a-z]/g, function(letter) {
-        return letter.toUpperCase();
-    });
-    // Cycle through each <li> element and hide it or show it based on the search term
+			return letter.toUpperCase();
+		});
+		// Cycle through each <li> element and hide it or show it based on the search term
 		$('.markerList > li').each(function() {
 			if ($(this).text().search(value) > -1) {
 				$(this).show();
@@ -121,7 +121,7 @@ var MapViewModel = function() {
 		if (!bikeLayer.setMap(null)) bikeLayer.setMap(self.map);
 		if (self.mapType()[0] === "Satellite") self.map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
 		if (self.mapType()[0] === "Terrain") self.map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
-	  if (self.mapType()[0] === "Road") self.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+		if (self.mapType()[0] === "Road") self.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
 		if (self.mapType()[0] === "Bike") bikeLayer.setMap(self.map);
 		if (self.mapType()[0] === "Hybrid") self.map.setMapTypeId(google.maps.MapTypeId.HYBRID);
 	};
@@ -133,17 +133,17 @@ var MapViewModel = function() {
 	// Function is called in our Marker Click and List Item Click events
 	self.infowindowToggle = function(content, marker) {
 		for (var i = 0; i < self.fsPlaces().length; i++) {
-		  self.infowindow.close();
-  	  self.infowindow.setContent(content);
-  	  self.infowindow.open(self.map, marker);
+			self.infowindow.close();
+			self.infowindow.setContent(content);
+			self.infowindow.open(self.map, marker);
 		};
 	};
 
 	// Function to set all markers animation to none
 	self.clearMarkerAnimation = function() {
 		for (var i = 0; i < self.fsPlaces().length; i++) {
-  		self.fsPlaces()[i].marker.setAnimation(null);
-  	};
+			self.fsPlaces()[i].marker.setAnimation(null);
+		};
 	};
 
 	/* CATEGORIES
@@ -213,17 +213,17 @@ var MapViewModel = function() {
 			"&v=20130815&limit=50&categoryId=" + self.chosenCategoryID() +
 			"&radius=6000&near=" + self.city(), function(data) {
 
-		  // Store the places request data in a global variable
-		  placesModel = data.response.venues;
+			// Store the places request data in a global variable
+			placesModel = data.response.venues;
 
-		  // Push the global variable results into the ViewModel observable
-		  self.fsPlaces(placesModel);
-	  	console.log("Foursquare successfully loaded places");
+			// Push the global variable results into the ViewModel observable
+			self.fsPlaces(placesModel);
+			console.log("Foursquare successfully loaded places");
 
-	  	// This function, within the request, allows the data to be used outside this scope.
-	  	setMarkers();
-	  	$('#error').hide();
-	  // Error handling for if the Foursquare service is unreachable or if the user types in an unrecognizable search term
+			// This function, within the request, allows the data to be used outside this scope.
+			setMarkers();
+			$('#error').hide();
+		// Error handling for if the Foursquare service is unreachable or if the user types in an unrecognizable search term
 		}).error(function() {
 			$('#error').text("Foursquare can not retrieve places at this time. Please try again later or refine your search term.").show();
 			console.log("Foursquare API error");
@@ -255,55 +255,55 @@ var MapViewModel = function() {
 				var fsIcon = fsIconRaw.replace("https://ss3.4sqi.net", "https://foursquare.com");
 
 				place.marker = new google.maps.Marker({
-				  position: new google.maps.LatLng(place.location.lat, place.location.lng),
-				  title: place.name,
-				  map: self.map,
-				  animation: google.maps.Animation.DROP,
-				  icon: fsIcon,
-				  html: '<div>' +
-			      '<h2 class="infoTitle">' + place.name +
-			      '</h2><h4 class="infoCategory">' + place.categories[0].name +
-			      '</h4><p class="infoPhone">Phone: ' + placePhone +
-			      '<p class="infoAddress">Address: ' + placeAddress + ' ' + placeCity + ', ' + placeState + ' ' + placeZip +
-			      '</p><p class="infoWeb"><a href="' + placeWeb + '">'+
-			      '' +  placeWeb + '</a> '+
-			      '</p></div>'
-			  });
+					position: new google.maps.LatLng(place.location.lat, place.location.lng),
+					title: place.name,
+					map: self.map,
+					animation: google.maps.Animation.DROP,
+					icon: fsIcon,
+					html: '<div>' +
+						'<h2 class="infoTitle">' + place.name +
+						'</h2><h4 class="infoCategory">' + place.categories[0].name +
+						'</h4><p class="infoPhone">Phone: ' + placePhone +
+						'<p class="infoAddress">Address: ' + placeAddress + ' ' + placeCity + ', ' + placeState + ' ' + placeZip +
+						'</p><p class="infoWeb"><a href="' + placeWeb + '">'+
+						'' +  placeWeb + '</a> '+
+						'</p></div>'
+				});
 
-			  // Utilizing a closure here to add event listeners to each Marker
-			  google.maps.event.addListener(place.marker, 'click', (function(innerKey) {
-	        return function() {
-	        	// On marker click, set all other markers animation to null
-	        	self.clearMarkerAnimation();
+				// Utilizing a closure here to add event listeners to each Marker
+				google.maps.event.addListener(place.marker, 'click', (function(innerKey) {
+					return function() {
+						// On marker click, set all other markers animation to null
+						self.clearMarkerAnimation();
 
-	        	// Toggle the infowindow to display, center map on marker, set animation to bounce
-	        	self.infowindowToggle(self.fsPlaces()[innerKey].marker.html, this);
-	        	self.map.setCenter(new google.maps.LatLng(self.fsPlaces()[innerKey].location.lat, self.fsPlaces()[innerKey].location.lng));
-	        	self.fsPlaces()[innerKey].marker.setAnimation(google.maps.Animation.BOUNCE);
-	        }
-	      })(i));
+						// Toggle the infowindow to display, center map on marker, set animation to bounce
+							self.infowindowToggle(self.fsPlaces()[innerKey].marker.html, this);
+							self.map.setCenter(new google.maps.LatLng(self.fsPlaces()[innerKey].location.lat, self.fsPlaces()[innerKey].location.lng));
+						self.fsPlaces()[innerKey].marker.setAnimation(google.maps.Animation.BOUNCE);
+					}
+				})(i));
 			}
 		}
 
 		// Using Google's Styled Map options. JSON below was built with Styled Map Wizard
 		var styles = [
-		  {"featureType":"water","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#1080dd"}]},
-		  {"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#ffff5f"}]},
-		  {"featureType":"road.highway.controlled_access","elementType":"geometry.fill","stylers":[{"color":"#f09609"}]},
-		  {"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#dddddd"}]},
-		  {"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#ffff5f" }]},
-		  {"featureType":"poi","elementType":"labels.icon","stylers":[{"visibility":"off"}]}
+			{"featureType":"water","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#1080dd"}]},
+			{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#ffff5f"}]},
+			{"featureType":"road.highway.controlled_access","elementType":"geometry.fill","stylers":[{"color":"#f09609"}]},
+			{"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#dddddd"}]},
+			{"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#ffff5f" }]},
+			{"featureType":"poi","elementType":"labels.icon","stylers":[{"visibility":"off"}]}
 		];
 
 		var mapOptions = {
-	    center: { lat: self.lat(), lng: self.lng()},
-	    zoom: 15,
-	    mapTypeId: google.maps.MapTypeId.ROADMAP,
-	    streetViewControl: false,
-	    zoomControl: true,
-	    panControl: false,
-	    mapTypeControl: false
-	  };
+			center: { lat: self.lat(), lng: self.lng()},
+			zoom: 15,
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			streetViewControl: false,
+			zoomControl: true,
+			panControl: false,
+			mapTypeControl: false
+		};
 
 		self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
