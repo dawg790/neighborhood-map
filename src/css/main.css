@@ -196,7 +196,7 @@ label {
 .infoPhone,
 .infoAddress,
 .infoWeb {
-	font-family: "Raleway";
+	font-family: "Raleway", sans-serif;
 }
 
 .infoTitle {
@@ -208,7 +208,6 @@ label {
 
 .infoCategory {
 	margin: 2px 0;
-
 }
 
 .infoPhone {
