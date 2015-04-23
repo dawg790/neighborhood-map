@@ -10,42 +10,42 @@ var CLIENT_SECRET = "5I1RMLBOLDC1QXU5IJN4VLC2E1N2G1JIGB3QUG5FTAZO4CFM";
 
 // Listing of categories from foursquare
 var fsCategories = [
-  { "name": "Restaurants",
-    "id" : "4d4b7105d754a06374d81259"
-  },{
-    "name": "Airport",
-    "id": "4bf58dd8d48988d1ed931735"
-  },{
-    "name": "Coffee",
-    "id": "4bf58dd8d48988d1e0931735"
-  },{
-    "name": "Food Trucks",
-    "id": "4bf58dd8d48988d1cb941735"
-  },{
-    "name": "Breweries",
-    "id": "50327c8591d4c4b30a586d5d"
-  },{
-    "name": "Museums",
-    "id": "4bf58dd8d48988d181941735"
-  },{
-    "name": "Universities",
-    "id": "4d4b7105d754a06372d81259"
-  },{
-    "name": "Hotel",
-    "id": "4bf58dd8d48988d1fa931735"
-  },{
-    "name": "Outdoors",
-    "id": "4d4b7105d754a06377d81259"
-  },{
-    "name": "Stadiums",
-    "id": "4bf58dd8d48988d184941735"
-  },{
-    "name": "Shopping",
-    "id": "4d4b7105d754a06378d81259"
-  },{
-    "name": "Zoo",
-    "id": "4bf58dd8d48988d17b941735"
-  }
+	{ "name": "Restaurants",
+		"id" : "4d4b7105d754a06374d81259"
+	},{
+		"name": "Airport",
+		"id": "4bf58dd8d48988d1ed931735"
+	},{
+		"name": "Coffee",
+		"id": "4bf58dd8d48988d1e0931735"
+	},{
+		"name": "Food Trucks",
+		"id": "4bf58dd8d48988d1cb941735"
+	},{
+		"name": "Breweries",
+		"id": "50327c8591d4c4b30a586d5d"
+	},{
+		"name": "Museums",
+		"id": "4bf58dd8d48988d181941735"
+	},{
+		"name": "Universities",
+		"id": "4d4b7105d754a06372d81259"
+	},{
+		"name": "Hotel",
+		"id": "4bf58dd8d48988d1fa931735"
+	},{
+		"name": "Outdoors",
+		"id": "4d4b7105d754a06377d81259"
+	},{
+		"name": "Stadiums",
+		"id": "4bf58dd8d48988d184941735"
+	},{
+		"name": "Shopping",
+		"id": "4d4b7105d754a06378d81259"
+	},{
+		"name": "Zoo",
+		"id": "4bf58dd8d48988d17b941735"
+	}
 ];
 
 // Global var to hold the places request data returned from Foursquare
@@ -93,19 +93,25 @@ var MapViewModel = function() {
 
 	// The List View Click event
 	self.selectPlace = function(clickedItem) {
-		// Set all marker animations to null
+		window.performance.mark("mark_start_listSelect");
+
+		// Set all marker animations to null and close all open infowindows
+		self.clearInfoWindows();
 		self.clearMarkerAnimation();
 
-		// Close all open infowindows, set the content to clickedItem, then open it
-		self.infowindowToggle(clickedItem.marker.html, clickedItem.marker);
-
-		// Set the clicked marker to Bounce
+		// Set the clicked marker to Bounce - and open the infowindow
 		clickedItem.marker.setAnimation(google.maps.Animation.BOUNCE);
+		clickedItem.infowindow.open(self.map, clickedItem.marker);
 
 		// This centers the map on the selected place
 		self.map.setCenter(new google.maps.LatLng(clickedItem.location.lat, clickedItem.location.lng));
-		self.map.setZoom(17);
+
 		console.log(clickedItem);
+
+		window.performance.mark("mark_end_listSelect");
+		window.performance.measure("measure_listItem_select", "mark_start_listSelect", "mark_end_listSelect");
+		var timeToSelect = window.performance.getEntriesByName("measure_listItem_select");
+		console.log("Time to select from the list: " + timeToSelect[0].duration + "ms");
 	};
 
 	// TODO: Places photos
@@ -113,30 +119,12 @@ var MapViewModel = function() {
 	// Map Settings - user defined within the app
 	self.mapType = ko.observable();
 
-	// Checking that we have the google object before instantiating new objects.
-	if (typeof google !== "undefined") var bikeLayer = new google.maps.BicyclingLayer();
-
 	// Click event for Map settings options - allows user to select type of base map
 	self.settings = function(data) {
-		if (!bikeLayer.setMap(null)) bikeLayer.setMap(self.map);
 		if (self.mapType()[0] === "Satellite") self.map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
 		if (self.mapType()[0] === "Terrain") self.map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
 		if (self.mapType()[0] === "Road") self.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
-		if (self.mapType()[0] === "Bike") bikeLayer.setMap(self.map);
 		if (self.mapType()[0] === "Hybrid") self.map.setMapTypeId(google.maps.MapTypeId.HYBRID);
-	};
-
-	/* Declaring a global var for the infowindow, so that all open windows can be closed when a marker is clicked.
-	 * Script checks that the google object is available before instantiating new objects.
-	 */
-	if (typeof google !== "undefined") self.infowindow = new google.maps.InfoWindow();
-	// Function is called in our Marker Click and List Item Click events
-	self.infowindowToggle = function(content, marker) {
-		for (var i = 0; i < self.fsPlaces().length; i++) {
-			self.infowindow.close();
-			self.infowindow.setContent(content);
-			self.infowindow.open(self.map, marker);
-		};
 	};
 
 	// Function to set all markers animation to none
@@ -145,6 +133,13 @@ var MapViewModel = function() {
 			self.fsPlaces()[i].marker.setAnimation(null);
 		};
 	};
+
+	// Close all open infowindows
+	self.clearInfoWindows = function() {
+		for (var i = 0; i < self.fsPlaces().length; i++) {
+			self.fsPlaces()[i].infowindow.close();
+		};
+	}
 
 	/* CATEGORIES
    * Create an array of all the category id's, then join the items to make a comma separated string,
@@ -165,6 +160,7 @@ var MapViewModel = function() {
 	 * against the fsCategories object and update the id to use in the JSON request.
 	 */
 	self.setCategory = function() {
+		window.performance.mark("mark_start_cat");
 		for (var i = 0; i < fsCategories.length; i++) {
 			if (self.catChoice()[0] === fsCategories[i].name) {
 				self.chosenCategoryID(fsCategories[i].id);
@@ -270,16 +266,30 @@ var MapViewModel = function() {
 						'</p></div>'
 				});
 
+				place.infowindow = new google.maps.InfoWindow();
+				place.infowindow.setContent(place.marker.html);
+
 				// Utilizing a closure here to add event listeners to each Marker
 				google.maps.event.addListener(place.marker, 'click', (function(innerKey) {
 					return function() {
-						// On marker click, set all other markers animation to null
+						window.performance.mark("mark_start_markerSelect");
+						// Set all other markers animation to null, and close all open infowindows
 						self.clearMarkerAnimation();
+						self.clearInfoWindows();
 
-						// Toggle the infowindow to display, center map on marker, set animation to bounce
-							self.infowindowToggle(self.fsPlaces()[innerKey].marker.html, this);
-							self.map.setCenter(new google.maps.LatLng(self.fsPlaces()[innerKey].location.lat, self.fsPlaces()[innerKey].location.lng));
+						// Open the infowindow.
+						self.fsPlaces()[innerKey].infowindow.open(self.map, self.fsPlaces()[innerKey].marker);
+
+						// Center the map on the new marker
+						self.map.setCenter(new google.maps.LatLng(self.fsPlaces()[innerKey].location.lat, self.fsPlaces()[innerKey].location.lng));
+
+						// Set the marker to bounce
 						self.fsPlaces()[innerKey].marker.setAnimation(google.maps.Animation.BOUNCE);
+
+						window.performance.mark("mark_end_markerSelect");
+						window.performance.measure("measure_marker_select", "mark_start_markerSelect", "mark_end_markerSelect");
+						var timeToSelectMarker = window.performance.getEntriesByName("measure_marker_select");
+						console.log("Time to select from the marker: " + timeToSelectMarker[0].duration + "ms");
 					}
 				})(i));
 			}
@@ -308,14 +318,15 @@ var MapViewModel = function() {
 		self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
 		// Adding the Bicycling layer - but setting it to null, so that users can add it from the Map Settings options
-		bikeLayer.setMap(null);
+		var bikeLayer = new google.maps.BicyclingLayer();
+		bikeLayer.setMap(self.map);
 
 		// Calling setOptions on the map and setting it to the styles array from above
 		self.map.setOptions({styles: styles});
 	};
 
 	/* ERROR HANDLING for Google Maps
-   *
+	 *
 	 * Check for the google object when the app launches
 	 */
 	if (typeof google === "undefined") {
