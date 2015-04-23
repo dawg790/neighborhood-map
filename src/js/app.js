@@ -16,7 +16,7 @@ var fsCategories = [
   	"name": "Airport",
   	"id": "4bf58dd8d48988d1ed931735"
   },{
-  	"name": "Coffee Shops",
+  	"name": "Coffee",
   	"id": "4bf58dd8d48988d1e0931735"
   },{
   	"name": "Food Trucks",
@@ -28,7 +28,7 @@ var fsCategories = [
   	"name": "Museums",
   	"id": "4bf58dd8d48988d181941735"
   },{
-  	"name": "Higher Education",
+  	"name": "Universities",
   	"id": "4d4b7105d754a06372d81259"
   },{
   	"name": "Hotel",
@@ -61,7 +61,7 @@ var MapViewModel = function() {
 	// Define ko array for our AJAX request - push the data from the Model into our ViewModel
 	self.fsPlaces = ko.observableArray([]);
 
-	// Holding our lat longs for the map - with default starting points in Denver
+	// Holding the lat longs for the map - with default starting points in Denver
 	self.lat = ko.observable(39.750);
 	self.lng = ko.observable(-104.999);
 
@@ -116,7 +116,7 @@ var MapViewModel = function() {
 	// Checking that we have the google object before instantiating new objects.
 	if (typeof google !== "undefined") var bikeLayer = new google.maps.BicyclingLayer();
 
-	// Click event for Map settings options
+	// Click event for Map settings options - allows user to select type of base map
 	self.settings = function(data) {
 		if (!bikeLayer.setMap(null)) bikeLayer.setMap(self.map);
 		if (self.mapType()[0] === "Satellite") self.map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
@@ -126,8 +126,8 @@ var MapViewModel = function() {
 		if (self.mapType()[0] === "Hybrid") self.map.setMapTypeId(google.maps.MapTypeId.HYBRID);
 	};
 
-	/* Declaring a global var for the infowindow, so I can close all open windows when I click on a marker
-	 * Checking that we have the google object before instantiating new objects.
+	/* Declaring a global var for the infowindow, so that all open windows can be closed when a marker is clicked.
+	 * Script checks that the google object is available before instantiating new objects.
 	 */
 	if (typeof google !== "undefined") self.infowindow = new google.maps.InfoWindow();
 	// Function is called in our Marker Click and List Item Click events
@@ -161,8 +161,8 @@ var MapViewModel = function() {
 	// Store the selected choice in the drop down to display dynamically in the DOM - use starter value
 	self.catChoice = ko.observable();
 
-	/* Function is run when category is choosen from the list, we check the selected option
-	 * against the fsCategories object and update the id to use in our JSON request.
+	/* setCategory is run when a category is choosen from the list. Check the selected option
+	 * against the fsCategories object and update the id to use in the JSON request.
 	 */
 	self.setCategory = function() {
 		for (var i = 0; i < fsCategories.length; i++) {
@@ -170,7 +170,7 @@ var MapViewModel = function() {
 				self.chosenCategoryID(fsCategories[i].id);
 			}
 		};
-		// We run initialize again to reset the markers for the new category
+		// Run initialize again to reset the markers for the new category
 		self.initializeMap();
 	}
 
@@ -198,7 +198,7 @@ var MapViewModel = function() {
 			console.log("Google Geocode API error");
 		});
 
-		// Have to run this again to add the markers in the new city
+		// Run again to add the markers in the new city
 		self.initializeMap();
 
 		// Clear out the text input field
@@ -213,14 +213,14 @@ var MapViewModel = function() {
 			"&v=20130815&limit=50&categoryId=" + self.chosenCategoryID() +
 			"&radius=6000&near=" + self.city(), function(data) {
 
-		  // Store our places request data in a global variable
+		  // Store the places request data in a global variable
 		  placesModel = data.response.venues;
 
-		  // Push our global variable results into our ViewModel observable
+		  // Push the global variable results into the ViewModel observable
 		  self.fsPlaces(placesModel);
 	  	console.log("Foursquare successfully loaded places");
 
-	  	// This function within the request, allows us to use the data outside this scope.
+	  	// This function, within the request, allows the data to be used outside this scope.
 	  	setMarkers();
 	  	$('#error').hide();
 	  // Error handling for if the Foursquare service is unreachable or if the user types in an unrecognizable search term
@@ -249,7 +249,8 @@ var MapViewModel = function() {
 				if (placeZip === undefined) placeZip = "";
 				if (placeWeb === undefined) placeWeb = "No Website";
 
-				// This is updating an old URI from Foursquare for icon images. I can't figure out how to get the proper URL from the request.
+				// This is updating an old URI from Foursquare for icon images.
+				// TODO: I can't figure out how to get the proper URL from the request.
 				var fsIconRaw = place.categories[0].icon.prefix + "bg_32" + place.categories[0].icon.suffix;
 				var fsIcon = fsIconRaw.replace("https://ss3.4sqi.net", "https://foursquare.com");
 
@@ -272,7 +273,7 @@ var MapViewModel = function() {
 			  // Utilizing a closure here to add event listeners to each Marker
 			  google.maps.event.addListener(place.marker, 'click', (function(innerKey) {
 	        return function() {
-	        	// On marker click we first want to set all other markers animation to null
+	        	// On marker click, set all other markers animation to null
 	        	self.clearMarkerAnimation();
 
 	        	// Toggle the infowindow to display, center map on marker, set animation to bounce
@@ -314,8 +315,8 @@ var MapViewModel = function() {
 	};
 
 	/* ERROR HANDLING for Google Maps
-   * First we will deal with initially reaching 3rd party data sites upon launching the app
-	 * Check for the google object
+   *
+	 * Check for the google object when the app launches
 	 */
 	if (typeof google === "undefined") {
 		var errorStr = "Resource API (Google Maps) did not load. Please try again later.";
@@ -329,26 +330,3 @@ var MapViewModel = function() {
 };
 
 ko.applyBindings( new MapViewModel() );
-
-
-
-/* Some test code to potentially be used for adding photos for each place. Link would be added to the infowindow.
- * user would click the link to open a DOM element containing foursquare loaded photos for that place.
- */
-// var placeId;
-// function runPics() {
-// 	console.log(placeId);
-// 	$.getJSON("https://api.foursquare.com/v2/venues/" + placeId + "/photos?client_id=MUKBUW43YPMWUS2HKDZQZW4VYLT5B1HHST20VR5K35WAKFVC&client_secret=5I1RMLBOLDC1QXU5IJN4VLC2E1N2G1JIGB3QUG5FTAZO4CFM&v=20150421", function(data) {
-// 		for (var i = 0; i < data.response.photos.items.length; i++) {
-// 			var img = data.response.photos.items[i];
-// 			var ref = img.prefix + "100x100" + img.suffix;
-// 			var imgElt = document.createElement('img');
-// 			var imgATag = document.createElement('a');
-// 			imgATag.setAttribute('href', img.prefix + "300x300" + img.suffix);
-// 			imgATag.setAttribute('target', "_blank");
-// 			imgElt.setAttribute('src', ref);
-// 			imgATag.appendChild(imgElt);
-// 			$('.foursquarePics').append(imgATag).show();
-// 		};
-// 	});
-// }
