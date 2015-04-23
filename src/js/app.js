@@ -65,7 +65,7 @@ var MapViewModel = function() {
 	self.lat = ko.observable(39.750);
 	self.lng = ko.observable(-104.999);
 
-	// Search Places and filter list view and markers - runs on keyup
+	// SEARCH: filters list view and markers - runs on keyup
 	self.search = function() {
 		var value = $('#searchTerm').val();
 		// Found this replace function online to convert search term to Capital cased
@@ -91,9 +91,8 @@ var MapViewModel = function() {
 		};
 	}
 
-	// The List View Click event
+	// LIST VIEW CLICK EVENT
 	self.selectPlace = function(clickedItem) {
-		window.performance.mark("mark_start_listSelect");
 
 		// Set all marker animations to null and close all open infowindows
 		self.clearInfoWindows();
@@ -107,16 +106,11 @@ var MapViewModel = function() {
 		self.map.setCenter(new google.maps.LatLng(clickedItem.location.lat, clickedItem.location.lng));
 
 		console.log(clickedItem);
-
-		window.performance.mark("mark_end_listSelect");
-		window.performance.measure("measure_listItem_select", "mark_start_listSelect", "mark_end_listSelect");
-		var timeToSelect = window.performance.getEntriesByName("measure_listItem_select");
-		console.log("Time to select from the list: " + timeToSelect[0].duration + "ms");
 	};
 
-	// TODO: Places photos
+	// TODO: Places photos - bring in somehow from Foursquare, or other API: Instagram, Flickr.
 
-	// Map Settings - user defined within the app
+	// MAP SETTINGS - user defined within the app
 	self.mapType = ko.observable();
 
 	// Click event for Map settings options - allows user to select type of base map
@@ -127,14 +121,14 @@ var MapViewModel = function() {
 		if (self.mapType()[0] === "Hybrid") self.map.setMapTypeId(google.maps.MapTypeId.HYBRID);
 	};
 
-	// Function to set all markers animation to none
+	// CLEAR ALL MARKER ANIMATION
 	self.clearMarkerAnimation = function() {
 		for (var i = 0; i < self.fsPlaces().length; i++) {
 			self.fsPlaces()[i].marker.setAnimation(null);
 		};
 	};
 
-	// Close all open infowindows
+	// CLOSE ALL OPEN INFOWINDOWS
 	self.clearInfoWindows = function() {
 		for (var i = 0; i < self.fsPlaces().length; i++) {
 			self.fsPlaces()[i].infowindow.close();
@@ -151,16 +145,16 @@ var MapViewModel = function() {
 	};
 	var ids = categoryIdArray.join(",");
 
+	// Store the users choice (ID) in the Category selection options
 	self.chosenCategoryID = ko.observable(ids);
 
-	// Store the selected choice in the drop down to display dynamically in the DOM - use starter value
+	// Store the selected choice (Name) in the drop down to display dynamically in the DOM - use starter value
 	self.catChoice = ko.observable();
 
 	/* setCategory is run when a category is choosen from the list. Check the selected option
 	 * against the fsCategories object and update the id to use in the JSON request.
 	 */
 	self.setCategory = function() {
-		window.performance.mark("mark_start_cat");
 		for (var i = 0; i < fsCategories.length; i++) {
 			if (self.catChoice()[0] === fsCategories[i].name) {
 				self.chosenCategoryID(fsCategories[i].id);
@@ -171,10 +165,10 @@ var MapViewModel = function() {
 	}
 
 	// USER ENTERED LOCATION
-	// Setting a variable to hold the user entered city
+	// Hold the user entered city
 	self.city = ko.observable($('#city').val());
 
-	// function to re-center the map over the user entered city
+	// Set City centers the map over the user entered city
 	self.setCity = function() {
 		var cityValue = $('#city').val();
 
@@ -188,8 +182,8 @@ var MapViewModel = function() {
 			self.lat(data.results[0].geometry.location.lat);
 			self.lng(data.results[0].geometry.location.lng);
 			self.map.setCenter({lat: self.lat(), lng: self.lng()});
-		// Error handling below is if the Geocode service is down. Google seems to handle incorrect typing on city names pretty well.
 		}).error(function() {
+			// Error handling if the Geocode service is down. Google seems to handle incorrect typing on city names pretty well.
 			$('#error').text("Google Geocode is not responding. Please try again later.").show();
 			console.log("Google Geocode API error");
 		});
@@ -219,8 +213,8 @@ var MapViewModel = function() {
 			// This function, within the request, allows the data to be used outside this scope.
 			setMarkers();
 			$('#error').hide();
-		// Error handling for if the Foursquare service is unreachable or if the user types in an unrecognizable search term
 		}).error(function() {
+			// Error handling if the Foursquare service is unreachable or if the user types in an unrecognizable search term.
 			$('#error').text("Foursquare can not retrieve places at this time. Please try again later or refine your search term.").show();
 			console.log("Foursquare API error");
 		});
@@ -228,6 +222,7 @@ var MapViewModel = function() {
 		// Function is called in the JSON request to Foursquare and places the markers into the fsPlaces array.
 		this.setMarkers = function() {
 			for (var i = 0; i < self.fsPlaces().length; i++) {
+
 				// Storing some variables here for easier use later
 				var place = self.fsPlaces()[i];
 				var placePhone = place.contact.formattedPhone;
@@ -250,6 +245,7 @@ var MapViewModel = function() {
 				var fsIconRaw = place.categories[0].icon.prefix + "bg_32" + place.categories[0].icon.suffix;
 				var fsIcon = fsIconRaw.replace("https://ss3.4sqi.net", "https://foursquare.com");
 
+				// Set the markers as properties of the fsPlaces observable
 				place.marker = new google.maps.Marker({
 					position: new google.maps.LatLng(place.location.lat, place.location.lng),
 					title: place.name,
@@ -266,13 +262,13 @@ var MapViewModel = function() {
 						'</p></div>'
 				});
 
+				// Set the infowindows as properties of the fsPlaces observable
 				place.infowindow = new google.maps.InfoWindow();
 				place.infowindow.setContent(place.marker.html);
 
 				// Utilizing a closure here to add event listeners to each Marker
 				google.maps.event.addListener(place.marker, 'click', (function(innerKey) {
 					return function() {
-						window.performance.mark("mark_start_markerSelect");
 						// Set all other markers animation to null, and close all open infowindows
 						self.clearMarkerAnimation();
 						self.clearInfoWindows();
@@ -285,11 +281,6 @@ var MapViewModel = function() {
 
 						// Set the marker to bounce
 						self.fsPlaces()[innerKey].marker.setAnimation(google.maps.Animation.BOUNCE);
-
-						window.performance.mark("mark_end_markerSelect");
-						window.performance.measure("measure_marker_select", "mark_start_markerSelect", "mark_end_markerSelect");
-						var timeToSelectMarker = window.performance.getEntriesByName("measure_marker_select");
-						console.log("Time to select from the marker: " + timeToSelectMarker[0].duration + "ms");
 					}
 				})(i));
 			}
