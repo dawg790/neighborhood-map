@@ -4,9 +4,11 @@ var gulp = require('gulp'),
   notify = require('gulp-notify'),
   jshint = require('gulp-jshint'),
   uglify = require('gulp-uglify'),
-  htmlmin = require('gulp-htmlmin');
+  htmlmin = require('gulp-htmlmin'),
+// POSTCSS preprocessing
+  autoprefixer = require('gulp-autoprefixer'),
 // Image optimization variables
-var imagemin = require('gulp-imagemin');
+  imagemin = require('gulp-imagemin');
 // var imageminJpegtran = require('imagemin-jpegtran');
 // var imageminOptipng = require('imagemin-optipng');
 
@@ -41,6 +43,13 @@ gulp.task('styles', function() {
     .pipe(minifycss())
     .pipe(gulp.dest('dist/css'))
     .pipe(notify({ message: 'Styles task complete!' }));
+});
+
+// TODO: Add this to our styles task - but get it working properly.
+gulp.task('prefix', function () {
+  return gulp.src('src/css/*.css')
+    .pipe(autoprefixer())
+    .pipe(gulp.dest('dist/css'));
 });
 
 // task to minify HTML and move from src/index.html to dist/index.html

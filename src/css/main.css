@@ -95,11 +95,16 @@ body,
 
 /* Text */
 h2 {
-	background: linear-gradient(to right, #003366, #1080dd);
+	background: -moz-linear-gradient(to right, #036, #1080dd);
+	background: -o-linear-gradient(to right, #036, #1080dd);
+	background: -webkit-linear-gradient(to right, #036, #1080dd);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #036), color-stop(1, #1080dd));
+	filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr=#036, EndColorStr=#1080dd)";
+	background: linear-gradient(to right, #036, #1080dd);
 	color: #fff;
 	margin: 0;
 	padding: 3px;
-	text-transform: uppercase;
+	text-transform: uppercase
 }
 
 h2:hover {
@@ -149,10 +154,15 @@ h3 {
 
 .markerList li:hover,
 .settingsList li:hover {
+	background: -moz-linear-gradient(to right, #008040, #A2C139);
+	background: -o-linear-gradient(to right, #008040, #A2C139);
+	background: -webkit-linear-gradient(to right, #008040, #A2C139);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #008040), color-stop(1, #A2C139));
+	filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr=#008040, EndColorStr=#A2C139)";
 	background: linear-gradient(to right, #008040, #A2C139);
 	color: #fff;
 	cursor: pointer;
-	font-weight: bold;
+	font-weight: bold
 }
 
 /* Images */
@@ -165,7 +175,9 @@ h2 img {
 
 h2 img:hover {
 	cursor: pointer;
-	opacity: .8;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+	filter: alpha(opacity=80);
+	opacity: 0.8
 }
 
 /* Form Elements */
@@ -177,12 +189,14 @@ h2 img:hover {
 
 label {
 	background: #124191;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	border: none;
 	color: #fff;
 	margin-left: 10px;
 	outline: none;
-	padding: 10px;
+	padding: 10px
 }
 
 #mapArea {
@@ -194,14 +208,16 @@ label {
 }
 
 #search input[type=text] {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	border: 2px solid #ddd;
 	outline: none;
-  color: #888;
-  font-size: 1em;
-  margin-left: 5px;
-  margin-right: -10px;
-  padding: 10px;
+	color: #888;
+	font-size: 1em;
+	margin-left: 5px;
+	margin-right: -10px;
+	padding: 10px
 }
 
 /* Google Maps InfoWindows styling */
@@ -214,10 +230,15 @@ label {
 }
 
 .infoTitle {
+	background: -moz-linear-gradient(to right, #008040, #A2C139);
+	background: -o-linear-gradient(to right, #008040, #A2C139);
+	background: -webkit-linear-gradient(to right, #008040, #A2C139);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #008040), color-stop(1, #A2C139));
+	filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr=#008040, EndColorStr=#A2C139)";
 	background: linear-gradient(to right, #008040, #A2C139);
 	color: #fff;
 	font-weight: bold;
-	margin-bottom: 5px;
+	margin-bottom: 5px
 }
 
 .infoCategory {
@@ -256,11 +277,15 @@ label {
 	}
 
 	label {
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
 		border-radius: 5px;
-		padding: 2px;
+		padding: 2px
 	}
 
 	#search input[type=text] {
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
 		border-radius: 5px;
 	  padding: 2px;
 	}
