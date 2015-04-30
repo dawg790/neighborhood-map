@@ -14,22 +14,24 @@ var gulp = require('gulp'),
 
 // paths to various files
 var paths = {
-	components: ["src/components/jquery/dist/jquery.min.js", "src/components/knockout/dist/knockout.js"]
+  components: ["src/components/jquery/dist/jquery.min.js", "src/components/knockout/dist/knockout.js"]
 };
 
-gulp.task('default', function() {
+gulp.task('default', function () {
   console.log("Good job Nick, you got Gulp installed and working in this directory.");
 });
 
 // Move Bower Components to dist folders
-gulp.task('bower-to-dist', function() {
-	return gulp.src(paths.components)
-	  .pipe(gulp.dest('dist/js'));
+gulp.task('bower-to-dist', function () {
+  return gulp.src(paths.components)
+    .pipe(gulp.dest('dist/js'));
 });
 
 // task to minify my JS, and move from src/js to dist/js
-gulp.task('scripts', function() {
+gulp.task('scripts', function () {
   return gulp.src('src/js/*.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'))
     .pipe(uglify())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('dist/js'))
@@ -37,7 +39,7 @@ gulp.task('scripts', function() {
 });
 
 // task to minify CSS, and move from src/css to dist/css
-gulp.task('styles', function() {
+gulp.task('styles', function () {
   return gulp.src('src/css/*.css')
     .pipe(rename({suffix: '.min'}))
     .pipe(minifycss())
@@ -53,7 +55,7 @@ gulp.task('prefix', function () {
 });
 
 // task to minify HTML and move from src/index.html to dist/index.html
-gulp.task('content', function() {
+gulp.task('content', function () {
   return gulp.src('src/*.html')
     .pipe(htmlmin({collapseWhitespace: true}))
     .pipe(gulp.dest('dist'))
@@ -61,13 +63,13 @@ gulp.task('content', function() {
 });
 
 // optimize images and move to dist/images
-gulp.task('images', function() {
-	return gulp.src('src/images/*')
-		.pipe(imagemin({optimizationLevel: 5, progressive: true}))
-		.pipe(gulp.dest('dist/images'));
+gulp.task('images', function () {
+  return gulp.src('src/images/*')
+    .pipe(imagemin({optimizationLevel: 5, progressive: true}))
+    .pipe(gulp.dest('dist/images'));
 });
 
-gulp.task('watch', function() {
+gulp.task('watch', function () {
   gulp.watch('src/css/*.css', ['styles']);
   gulp.watch('src/js/*.js', ['scripts']);
   gulp.watch('src/*.html', ['content']);
@@ -75,7 +77,7 @@ gulp.task('watch', function() {
 });
 
 // Handle the error
-function errorHandler (error) {
+function errorHandler(error) {
   console.log(error.toString());
   this.emit('end');
 }
