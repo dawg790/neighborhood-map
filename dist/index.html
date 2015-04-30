@@ -92,11 +92,16 @@
 
 			/* Text */
 			h2 {
-				background: linear-gradient(to right, #003366, #1080dd);
+				background: -moz-linear-gradient(to right, #036, #1080dd);
+				background: -o-linear-gradient(to right, #036, #1080dd);
+				background: -webkit-linear-gradient(to right, #036, #1080dd);
+				background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #036), color-stop(1, #1080dd));
+				filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr=#036, EndColorStr=#1080dd)";
+				background: linear-gradient(to right, #036, #1080dd);
 				color: #fff;
 				margin: 0;
 				padding: 3px;
-				text-transform: uppercase;
+				text-transform: uppercase
 			}
 
 			h2:hover {
@@ -146,10 +151,15 @@
 
 			.markerList li:hover,
 			.settingsList li:hover {
+				background: -moz-linear-gradient(to right, #008040, #A2C139);
+				background: -o-linear-gradient(to right, #008040, #A2C139);
+				background: -webkit-linear-gradient(to right, #008040, #A2C139);
+				background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #008040), color-stop(1, #A2C139));
+				filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr=#008040, EndColorStr=#A2C139)";
 				background: linear-gradient(to right, #008040, #A2C139);
 				color: #fff;
 				cursor: pointer;
-				font-weight: bold;
+				font-weight: bold
 			}
 
 			/* Images */
@@ -162,7 +172,9 @@
 
 			h2 img:hover {
 				cursor: pointer;
-				opacity: .8;
+				-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+				filter: alpha(opacity=80);
+				opacity: 0.8
 			}
 
 			/* Form Elements */
@@ -174,12 +186,14 @@
 
 			label {
 				background: #124191;
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
 				border-radius: 5px;
 				border: none;
 				color: #fff;
 				margin-left: 10px;
 				outline: none;
-				padding: 10px;
+				padding: 10px
 			}
 
 			#mapArea {
@@ -191,14 +205,16 @@
 			}
 
 			#search input[type=text] {
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
 				border-radius: 5px;
 				border: 2px solid #ddd;
 				outline: none;
-			  color: #888;
-			  font-size: 1em;
-			  margin-left: 5px;
-			  margin-right: -10px;
-			  padding: 10px;
+				color: #888;
+				font-size: 1em;
+				margin-left: 5px;
+				margin-right: -10px;
+				padding: 10px
 			}
 
 			/* Google Maps InfoWindows styling */
@@ -211,10 +227,15 @@
 			}
 
 			.infoTitle {
+				background: -moz-linear-gradient(to right, #008040, #A2C139);
+				background: -o-linear-gradient(to right, #008040, #A2C139);
+				background: -webkit-linear-gradient(to right, #008040, #A2C139);
+				background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #008040), color-stop(1, #A2C139));
+				filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr=#008040, EndColorStr=#A2C139)";
 				background: linear-gradient(to right, #008040, #A2C139);
 				color: #fff;
 				font-weight: bold;
-				margin-bottom: 5px;
+				margin-bottom: 5px
 			}
 
 			.infoCategory {
@@ -253,15 +274,19 @@
 				}
 
 				label {
+					-moz-border-radius: 5px;
+					-webkit-border-radius: 5px;
 					border-radius: 5px;
-					padding: 2px;
+					padding: 2px
 				}
 
 				#search input[type=text] {
+					-moz-border-radius: 5px;
+					-webkit-border-radius: 5px;
 					border-radius: 5px;
 				  padding: 2px;
 				}
-			}</style></head><body><div id="search"><label for="searchTerm">SEARCH:</label><input data-bind="event: { keyup: search }" id="searchTerm" placeholder="Filter places..." type="text" value=""></div><div id="places"><h2 id="optionsToggle">Map Options<img id="down" src="images/downArrow.png" height="32" width="35"></h2><h3>Base Map<select id="mapSettings" data-bind="selectedOptions: mapType, event: { change: settings }"><option value="first">Choose Type...</option><option value="Satellite">Satellite</option><option value="Terrain">Terrain</option><option value="Road">Road</option><option value="Hybrid">Hybrid</option></select></h3><h3>City: <span data-bind="text: city"></span><form data-bind="submit: setCity" id="mapArea"><input id="city" type="text" value="Denver, CO" placeholder="City..."></form></h3><h3>Places: <span data-bind="text: catChoice"></span><select data-bind="foreach: fsCategories, selectedOptions: catChoice, event: { change: setCategory }" id="categoryChoices"><option data-bind="text: name"></option></select></h3><div><ul class="markerList" data-bind="foreach: fsPlaces"><li data-bind="text: name, click: $parent.selectPlace"></li></ul></div></div><div id="map-canvas"></div><div id="error"></div><div class="footer"><p>&copy; 2015 Hood App</p></div><script async src="js/jquery.min.js"></script><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU"></script><script async src="js/knockout.js"></script><script async src="js/app.min.js"></script><script>// Script for toggling the Map Options section
+			}</style></head><body><div id="search"><label for="searchTerm">SEARCH:</label><input data-bind="event: { keyup: search }" id="searchTerm" placeholder="Filter places..." type="text" value=""></div><div id="places"><h2 id="optionsToggle">Map Options<img id="down" src="images/downArrow.png" height="32" width="35"></h2><h3>Base Map<select id="mapSettings" data-bind="selectedOptions: mapType, event: { change: settings }"><option value="first">Choose Type...</option><option value="Satellite">Satellite</option><option value="Terrain">Terrain</option><option value="Road">Road</option><option value="Hybrid">Hybrid</option></select></h3><h3>City: <span data-bind="text: city"></span><form data-bind="submit: setCity" id="mapArea"><input id="city" type="text" value="Denver, CO" placeholder="City..."></form></h3><h3>Places: <span data-bind="text: catChoice"></span><select data-bind="foreach: fsCategories, selectedOptions: catChoice, event: { change: setCategory }" id="categoryChoices"><option data-bind="text: name"></option></select></h3><div><ul class="markerList" data-bind="foreach: fsPlaces"><li data-bind="text: name, click: $parent.selectPlace"></li></ul></div></div><div id="map-canvas"></div><div id="error"></div><div class="footer"><p>&copy; 2015 Hood App</p></div><script src="js/jquery.min.js"></script><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEI4Gy79BBtuCAM5JNDZnteFf3-TdaQjU"></script><script async src="js/knockout.js"></script><script async src="js/app.min.js"></script><script>// Script for toggling the Map Options section
 		var elt = document.getElementById('optionsToggle');
 		var eltImg = document.getElementById('down');
 		eltImg.style.transform = "rotate(180deg)";
